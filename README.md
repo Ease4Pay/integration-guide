@@ -22,7 +22,7 @@ Uma requisição de Ordem assim que chega na API recebe o estado de NOVO. Assim 
 Uma vez que a ORDEM avança nos ciclos ela não pode retornar a um estado anterior.
 Uma ordem APROVADA/CANCELADA/EXPIRADA, que são os estados possíveis no último estágio do ciclo de vida, jamais retornará para NOVO.
 
-![order life cycle](assets/order-life-cycle.png)
+<img src="assets/order-life-cycle-sm.png" alt="order life cycle" width="60%">
 
 ## 2- Enviando uma requisição
 
@@ -30,7 +30,7 @@ Uma ordem APROVADA/CANCELADA/EXPIRADA, que são os estados possíveis no último
 
 Toda requisição deve ser assinada pelos dados de integração, únicos e intransferíveis, da conta que realiza a requisição.
 Os dados podem ser obtidos no sistema administrativo no menu "Integração".
-Uma vez de posse dos dados, basta adicioná-los ao Body da requisição conforme item abaixo.
+Uma vez de posse dos dados, basta adicioná-los ao Body da requisição conforme a lista de parâmetros.
 
 ## 2.2- Dados obrigatórios para o payload da requisição
 
@@ -52,15 +52,18 @@ Uma vez de posse dos dados, basta adicioná-los ao Body da requisição conforme
 
 ### 2.2- Gerar a ordem com assinatura
 
-endpoint: 
+endpoint: https://api.ease4pay.com/api/merchants/accounts/orders
 
 Exemplo dos dados obrigatórios para criar a requisição da Ordem:
 
 ```
+// -----  Dados obtidos no painel administrativo ----- 
 const secret_token= "2831uwh21892u";
 
-const api_token= "shSHGjahsjasue1201";
+const secret_key= "shSHGjahsjasue1201";
+// --------------------------------------------------
 
+// -----  Dados da Ordem ----------------------------
 const payload = {
    "amount": 2500,
    "currency": "BRL",
@@ -77,14 +80,21 @@ const payload = {
        "pix_key": "kosd89ddpdsiop9-"
    }
 };
+// --------------------------------------------------
 ```
 
 Exemplo de requisição em JavaScript:
 
 ```
-const response = await fetch("https://example.org/post", {
+const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/orders", {
   method: "POST",
-  body: JSON.stringify({ “payload”: JSON.stringfy(payload), ‘token“: api_token, “secret”: secret_token}),
+  body: JSON.stringify(
+        { 
+            “payload”: JSON.stringfy(payload), 
+            "token“: api_token, 
+            “secret”: secret_token
+        }
+    ),
   headers: {
   	"Content-Type": "application/json",
   }
