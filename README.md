@@ -22,7 +22,7 @@ Uma requisição de Ordem assim que chega na API recebe o estado de NOVO. Assim 
 Uma vez que a ORDEM avança nos ciclos ela não pode retornar a um estado anterior.
 Uma ordem APROVADA/CANCELADA/EXPIRADA, que são os estados possíveis no último estágio do ciclo de vida, jamais retornará para NOVO.
 
-<img src="https://github.com/Ease4Pay/integration-guide-pt-br/blob/main/assets/order-life-cycle-sm.png" alt="order life cycle" width="60%">
+<img src="assets/order-life-cycle-sm.png" alt="order life cycle">
 
 ## 2- Enviando uma requisição
 
