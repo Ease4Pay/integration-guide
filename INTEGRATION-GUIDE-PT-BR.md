@@ -108,8 +108,8 @@ const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/or
   body: JSON.stringify(
         {
             “payload”: JSON.stringfy(payload),
-            "token“: api_token,
-            “secret”: secret_token
+            "token“: secret_token,
+            “secret”: secret_key
         }
     ),
   headers: {
