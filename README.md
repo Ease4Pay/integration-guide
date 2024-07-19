@@ -24,14 +24,21 @@ Uma vez que a ORDEM avança nos ciclos ela não pode retornar a um estado anteri
 Uma ordem APROVADA/CANCELADA/EXPIRADA, que são os estados possíveis no último estágio do ciclo de vida, jamais retornará para NOVO.
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+sequenceDiagram;
+participant Merchant
+participant Ease4Pay-API
+Merchant->>Ease4Pay-API: Order Data Request
+alt Error invalid data
+Ease4Pay-API-->>Merchant: Order Canceled
+else Error process data
+Ease4Pay-API-->>Merchant: Order Canceled/Expired
+else
+Ease4Pay-API-->>Merchant: Order Approved
+end
+alt Webhook async every change order status
+Ease4Pay-API-->>Merchant: Order status
+end
 ```
-
-<img src="assets/order-life-cycle-sm.png" alt="order life cycle">
 
 ## 2- Enviando uma requisição
 
