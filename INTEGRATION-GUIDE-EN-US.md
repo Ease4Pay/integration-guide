@@ -58,13 +58,12 @@ Once you have the data, simply add them to the request body as per the list of p
 | type_id                        |  Yes | integer                     | Order Type. Valid types:<br> 1-Deposit PIX<br>                          |  Yes |
 | merchant                       |  Yes | object                      | Merchant data referring to the Order                                                                                                                        |
 | merchant.order_id              |  Yes | string                      | Unique Identifier of the Order in the Merchant system. Required for auditing between systems.                                                                |
-| merchant.webhook_url           |  Yes | string                      | Url where webhooks will be sent.                                                                                                                         |
-| merchant.auto_approve          |  Yes | boolean                     | Pre-approval for the release of withdrawal from account balance. For deposit operations with deposit nature, it is not applicable and must be sent with a default value of FALSE. Only applicable for withdrawal operations (in development). |
+| merchant.auto_approve          |  Yes (only for Withdrawal) | boolean                     | Pre-approval for the release of withdrawal from account balance. For deposit operations with deposit nature, it is not applicable and must be sent with a default value of FALSE. Only applicable for withdrawal operations (in development). |
 | customer                       |  Yes | object                      | Customer data pertaining to the Order.                                                                                                                    |
 | customer.email                 |  Yes | string                      | User email                                                                                                                                                                                                             |
 | customer.document              |  Yes | string                      | User document. Only CPF type.                                                                                                                                                                              |
 | customer.brith_date            |  Yes | string date format yy/mm/DD | User birthday                                                                                                                                                                                               |
-| customer.pix_key               |  No | string                      | User's Pix Key that will receive the payment. Required only for Orders of type Pix Withdrawal.                                                                                 |
+| customer.pix_key               |  Yes (only for Withdrawal) | string                      | User's Pix Key that will receive the payment. Required only for Orders of type Pix Withdrawal.                                                                                 |
 
 ### 2.2- Generate the Order with signature
 
@@ -102,7 +101,8 @@ const payload = {
 Example of a request in JavaScript:
 
 ```
-const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/orders", {
+# Create signature from payload 
+const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/orders/generate-signature", {
   method: "POST",
   body: JSON.stringify(
         {
@@ -112,13 +112,31 @@ const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/or
         }
     ),
   headers: {
-  	"Content-Type": "application/json",
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer token' 
   }
   ...<code>
 )
 });
 ```
 
-### Considerations
+### 3 - Http Errors
+| HTTP status |  Code | Message |
+| ------------------------------ | ---------------  |   ------------ 
+| 406 |  1000401 | No balance for currency!
+| 406 |  1000402 | Order rejected due to insufficient balance!
+| 406 |  1000403 | Order already exists! order_merchant_id must be unique!
+| 406 |  1000404 | Payment method not allowed!
+| 406 |  1000405 | Currency not allowed!
 
+
+### 4 - Reasons for Failure
+| Code | Message |
+| --------------- | ------------ |
+| 2000401 | Order rejected because the document user irregular!
+| 2000402 | Order rejected because the user is underage!
+| 2000403 | Payment does not accept payments from other users
+
+### Considerations
 Administrative details regarding value custody, service fees, settlement operations, and deadlines are described in the service agreement contract.

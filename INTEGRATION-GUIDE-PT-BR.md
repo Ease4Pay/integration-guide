@@ -120,6 +120,21 @@ const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/or
 });
 ```
 
-### Considerações
+### 3 - Erros Http
+| HTTP status |  Code | Message |
+| ------------------------------ | ---------------  |   ------------ 
+| 406 |  1000401 | No balance for currency!
+| 406 |  1000402 | Order rejected due to insufficient balance!
+| 406 |  1000403 | Order already exists! order_merchant_id must be unique!
+| 406 |  1000404 | Payment method not allowed!
+| 406 |  1000405 | Currency not allowed!
 
+### 4 - Motivos de falha
+| Code | Message |
+| --------------- | ------------ |
+| 2000401 | Order rejected because the document user irregular!
+| 2000402 | Order rejected because the user is underage!
+| 2000403 | Payment does not accept payments from other users
+
+### Considerações
 Detalhes administrativos sobre custódia de valores, taxas de serviço, operações de liquidação de saldo e prazos estão descritos no contrato de prestação de serviço.
