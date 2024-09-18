@@ -67,58 +67,150 @@ Uma vez de posse dos dados, basta adicioná-los ao Body da requisição conforme
 | customer.brith_date             |  Sim | string date format yy/mm/DD | Data de aniversário do usuário                                                                                                                                                                                               |
 | customer.pix_key                |  Não | string                      | Chave Pix do usuário que irá receber o pagamento. Obrigatório somente nas Ordens do tipo Saque Pix.                                                                                                                                            |
 
-### 2.2- Gerar a ordem com assinatura
+### 2.3- Generate the Order with signature
 
-endpoint: https://api.ease4pay.com/api/merchants/accounts/orders
+Exemplo de requesição em JavaScript para Ordem de Depósito Pix:
 
-Exemplo dos dados obrigatórios para criar a requisição da Ordem:
+- PRIMEIRO PASSO
 
-```
-// -----  Dados obtidos no painel administrativo -----
-const secret_token= "2831uwh21892u";
+Obtenha o Bearer Token no endpoint de Login.
 
-const secret_key= "shSHGjahsjasue1201";
-// --------------------------------------------------
+O bearer token possui tempo de expiração de 15min.
 
-// -----  Dados da Ordem ----------------------------
-const payload = {
-   "amount": 2500,
-   "currency": "BRL",
-   "type_id": 1,
-   "merchant": {
-       "order_id": "395b29baak4-3d0-48as6a-bd2a5-08ea000sd8a5c71-ed34",
-       "webhook_url": "https://webhook.site/1c4bc91e-fb25-4223-889f-2236403a0999",
-       "auto_approve": false
-   },
-   "customer": {
-       "email": "customer.test@malinator.com",
-       "document": "19753725736",
-       "birth_date": "200-03-02",
-       "pix_key": "kosd89ddpdsiop9-"
-   }
-};
-// --------------------------------------------------
-```
-
-Exemplo de requisição em JavaScript:
+endpoint: "https://api.sandbox.ease4pay.com/api/merchants/auth/login"
 
 ```
-const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/orders", {
-  method: "POST",
-  body: JSON.stringify(
-        {
-            “payload”: JSON.stringfy(payload),
-            "token“: secret_token,
-            “secret”: secret_key
-        }
-    ),
-  headers: {
-  	"Content-Type": "application/json",
-  }
-  ...<code>
-)
-});
+ const userLogin = {
+    email:"johndoe@mail.com",
+    password:"password12345"
+  };
+
+ const configs = {
+    method: "POST",
+    body: JSON.stringify(userLogin),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  };
+
+  const url = "https://api.sandbox.ease4pay.com/api/merchants/auth/login";
+
+  const response = await fetch(url, configs)
+  .then(res => res.json());
+
+  const bearerToken = response.data.token;
 ```
+
+- SEGUNDO PASSO
+
+Obtenha os dados de integração
+
+Por questões de segurança, sugerimos que os dados de integração sejam atualizados periodicamente.
+Toda nova requisição para este endpoint renova os dados.
+
+endpoint: "https://api.sandbox.ease4pay.com/api/merchants/accounts/integrations"
+
+```
+ const configs = {
+    method: "POST",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      'Authorization': 'bearerToken'
+    }
+  };
+
+  const integrationUrl = "https://api.sandbox.ease4pay.com/api/merchants/accounts/integrations";
+
+  const responseIntegration = await fetch(integrationUrl, configs)
+  .then(res => res.json());
+
+  const secret_token = responseIntegration.data.secret_token;
+  const secret_key = responseIntegration.data.secret_key;
+
+```
+
+- TERCEIRO PASSO
+
+Gere a assinatura da ordem.
+
+endpoint: https://api.sandbox.ease4pay.com/api/merchants/accounts/orders/generate-signature
+
+```
+  const payload = {
+    amount: 2500,
+    currency: "USD",
+    type_id: 1,
+    merchant: {
+       order_id: "395b29baak4-3d0-48as6a-bd2a5-08ea000sd8a5c71-ed34",
+       auto_approve: false
+    },
+    customer: {
+       email: "customer.test@malinator.com",
+       document: "19753725736",
+       birth_date: "200-03-02",
+       pix_key: "",
+       pix_key_type: ""
+    }
+  };
+
+  const payloadEncoded = JSON.stringify(payload, null, 2);
+
+  const dataEncoded = JSON.stringify({
+    payload: payloadEncoded.toString(),
+    token: secret_token,
+    key: secret_key
+  });
+
+  const configs = {
+    method: "POST",
+    body: dataEncoded,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'bearerToken' 
+    }
+  };
+
+  const signatureUrl = "https://api.sandbox.ease4pay.com/api/merchants/accounts/orders/generate-signature";
+
+  const responseSignature = await fetch(signatureUrl, configs)
+  .then(res => res.json());
+
+  const encrypted = responseSignature.data.encrypted;
+
+```
+
+- QUARTO PASSO
+
+Crie a ordem.
+
+endpoint: "https://api.sandbox.ease4pay.com/api/merchants/accounts/orders"
+
+```
+  const configs = {
+    method: "POST",
+    body: payloadEncoded,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'bearerToken',
+      'signature-token': encrypted 
+    }
+  };
+
+  const orderUrl = "https://api.sandbox.ease4pay.com/api/merchants/accounts/orders";
+
+  const responseOrder = await fetch(orderUrl, configs)
+  .then(res => res.json());
+
+  const createdOrder = responseOrder.data;
+
+  <...Your Code...>
+
+```
+
 
 ### 3 - Erros Http
 | HTTP status |  Code | Message |
@@ -136,5 +228,12 @@ const response = await fetch("https://api.ease4pay.com/api/merchants/accounts/or
 | 2000402 | Order rejected because the user is underage!
 | 2000403 | Payment does not accept payments from other users
 
+### 5 - Dados de integração
+- Usuário e senha: Após realizar contato com nosso setor comercial, requisite os dados de acesso para o ambiente sandbox.
+- Sistema Administrativo ambiente sandbox para testes de integração: https://client.sandbox.ease4pay.com/
+- API ambiente Sandbox para testes de integração: https://api.sandbox.ease4pay.com/
+
 ### Considerações
 Detalhes administrativos sobre custódia de valores, taxas de serviço, operações de liquidação de saldo e prazos estão descritos no contrato de prestação de serviço.
+
+Acessos em produção dependem de homologação de integração junto à nossa equipe de qualidade.
