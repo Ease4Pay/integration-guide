@@ -61,6 +61,7 @@ Uma vez de posse dos dados, basta adicioná-los ao Body da requisição conforme
 | merchant.order_id               |  Sim | string                      | Identificador ÚNICO da Ordem no sistema do Comerciante. Necessário para auditoria entre sistemas.                                                                                                                            |
 | merchant.webhook_url            |  Sim | string                      | Url para onde serão enviados os webhooks.                                                                                                                                                                                    |
 | merchant.auto_approve           |  Sim | boolean                     | Pré-aprovação para liberação de saque do saldo de conta.<br> Para operações com natureza de depósito NÃO é aplicavél, deve ser enviado como padrão com valor FALSE. Só aplicável para operações de saque(em desenvolvimento) |
+| merchant.user_id          |  Não  | number                     | Identificador do usuário no sistema do comerciante |
 | customer                        |  Sim | object                      | Dados do usuário final participante da Ordem.                                                                                                                                                                                |
 | customer.email                  |  Sim | string                      | Email do usuário                                                                                                                                                                                                             |
 | customer.document               |  Sim | string                      | Documento do usuário. Somente tipo CPF é válido                                                                                                                                                                              |
@@ -68,7 +69,7 @@ Uma vez de posse dos dados, basta adicioná-los ao Body da requisição conforme
 | customer.pix_key                |  Sim (somente para saque pix) | string                      | Chave Pix do usuário que irá receber o pagamento. Obrigatório somente nas Ordens do tipo Saque Pix.      
 | customer.pix_key_type               |  Sim (somente para saque pix) | string                      |Tipo de chave Pix do usuário. Obrigatório apenas para Pedidos do tipo Saque Pix. Valores aceitos:<br> "cpf"= Documento do usuário<br> "phone"= Telefone do usuário. Registrado no sistema PIX. Pode ser diferente do registrado no cadastro do usuário.<br>"email"= Email do usuário. Registrado no sistema PIX. Pode ser diferente do registrado no cadastro do usuário.<br>"random_key"= Chave aleatória                                                                                                                                        |
 
-### 2.3- Generate the Order with signature
+### 2.3- Gerando a ordem com assinatura
 
 Exemplo de requesição em JavaScript para Ordem de Depósito Pix:
 
@@ -211,6 +212,9 @@ endpoint: "https://api.sandbox.ease4pay.com/api/merchants/accounts/orders"
   <...Your Code...>
 
 ```
+
+#### Parâmetros específicos do ambiente de testes(sandbox) para simulações
+- Para depósitos, ordens com "amount" entre  U$20,00 e U$100,00, serão aprovadas automaticamente pelo sistema em aproximadamente 5 segundos após a criação.
 
 
 ### 3 - Erros Http

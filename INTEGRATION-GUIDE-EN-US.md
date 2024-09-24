@@ -59,6 +59,7 @@ Once you have the data, simply add them to the request body as per the list of p
 | merchant                       |  Yes | object                      | Merchant data referring to the Order                                                                                                                        |
 | merchant.order_id              |  Yes | string                      | Unique Identifier of the Order in the Merchant system. Required for auditing between systems.                                                                |
 | merchant.auto_approve          |  Yes (only for Withdrawal) | boolean                     | Pre-approval for the release of withdrawal from account balance. For deposit operations with deposit nature, it is not applicable and must be sent with a default value of FALSE. Only applicable for withdrawal operations (in development). |
+| merchant.user_id          |  No  | number                     | User identifier in the merchant's system |
 | customer                       |  Yes | object                      | Customer data pertaining to the Order.                                                                                                                    |
 | customer.email                 |  Yes | string                      | User email                                                                                                                                                                                                             |
 | customer.document              |  Yes | string                      | User document. Only CPF type.                                                                                                                                                                              |
@@ -209,6 +210,9 @@ endpoint: "https://api.sandbox.ease4pay.com/api/merchants/accounts/orders"
   <...Your Code...>
 
 ```
+
+#### Specific parameters of the testing environment (sandbox) for simulations
+- For deposits, orders with an "amount" between U$20.00 and U$100.00 will be automatically approved by the system in approximately 5 seconds after creation.
 
 ### 3 - Http Errors
 | HTTP status |  Code | Message |
